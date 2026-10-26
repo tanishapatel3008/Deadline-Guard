@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Timeline & Calendar";
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Timeline & Calendar</h3>
+            <p class="text-muted small mb-0">Visual roadmap of approaching milestones and penalty thresholds</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex gap-2 small">
+                <span class="d-flex align-items-center gap-1"><span class="badge bg-danger p-1"></span> Critical</span>
+                <span class="d-flex align-items-center gap-1"><span class="badge bg-warning p-1"></span> High</span>
+                <span class="d-flex align-items-center gap-1"><span class="badge bg-info p-1"></span> Medium</span>
+                <span class="d-flex align-items-center gap-1"><span class="badge bg-success p-1"></span> Low</span>
+            </div>
+            <a href="@Url.Action("Create", "Deadlines")" class="btn btn-indigo btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Add Deadline
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm p-4">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+            if (calendarEl) {
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listMonth'
+                    },
+                    events: '/Dashboard/CalendarEvents',
+                    eventClick: function(info) {
+                        if (info.event.url) {
+                            window.location.href = info.event.url;
+                            info.jsEvent.preventDefault();
+                        }
+                    },
+                    eventDidMount: function(info) {
+                        info.el.setAttribute('title', `${info.event.title} (${info.event.extendedProps.priority} Priority, Score: ${info.event.extendedProps.score})`);
+                    }
+                });
+                calendar.render();
+            }
+        });
+    </script>
+}

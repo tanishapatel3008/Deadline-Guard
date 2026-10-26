@@ -1,0 +1,180 @@
+@model DeadlineGuard.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In — DeadlineGuard";
+}
+
+<div class="dg-auth-container">
+    <!-- Left Column: Editorial Brand Showcase & Feature List -->
+    <div class="dg-auth-showcase">
+        <div class="dg-auth-showcase-inner">
+            <!-- Brand Logo Header -->
+            <a href="@Url.Action("Login", "Account")" class="dg-auth-logo-link">
+                <img src="~/images/logo-brand.svg" alt="DeadlineGuard" class="dg-auth-logo-img" />
+                <div class="dg-auth-logo-text">
+                    <span class="dg-auth-logo-title">Deadline<span class="text-purple">Guard</span></span>
+                    <span class="dg-auth-logo-subtitle">Automatic Deadline &amp; Penalty Tracker</span>
+                </div>
+            </a>
+
+            <!-- Editorial Headline -->
+            <div class="dg-auth-heading-group">
+                <span class="dg-auth-eyebrow">STAY AHEAD. ALWAYS.</span>
+                <h1 class="dg-auth-main-headline">
+                    Your deadlines.<br />
+                    <span class="dg-auth-italic-accent">Our priority.</span>
+                </h1>
+                <p class="dg-auth-lead">
+                    Track your deadlines, avoid penalties, and stay organized — all in one place.
+                </p>
+            </div>
+
+            <!-- 5 Feature Items from Reference Image -->
+            <div class="dg-auth-features">
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-calendar-plus"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Add Deadlines</h6>
+                        <span class="dg-feature-desc">Include documents &amp; details</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Smart Reminders</h6>
+                        <span class="dg-feature-desc">Get notified, always</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Priority Ranking</h6>
+                        <span class="dg-feature-desc">Based on urgency, consequence &amp; effort</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Detect Conflicts</h6>
+                        <span class="dg-feature-desc">Avoid overlapping deadlines</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Daily Dashboard</h6>
+                        <span class="dg-feature-desc">Your action plan, every day</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Handwritten Tagline with double swoosh underline -->
+            <div class="dg-auth-tagline-wrapper">
+                <div class="dg-auth-tagline">
+                    Less stress.<br />More progress.
+                </div>
+                <svg class="dg-auth-tagline-swoosh" width="135" height="18" viewBox="0 0 135 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6C42 2 95 1 133 4" stroke="#6440ea" stroke-width="2.2" stroke-linecap="round"/>
+                    <path d="M14 13C52 10 98 9 124 12" stroke="#6440ea" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Frosted Glass Authentication Card -->
+    <div class="dg-auth-card-pane">
+        <div class="dg-auth-glass-card">
+            <div class="dg-card-header">
+                <div class="dg-card-eyebrow-line">
+                    <span class="dg-card-eyebrow">WELCOME BACK</span>
+                </div>
+                <h2 class="dg-card-title">Sign in to your account</h2>
+                <p class="dg-card-subtitle">Continue your journey with DeadlineGuard.</p>
+            </div>
+
+            <form asp-action="Login" method="post" class="dg-auth-form" id="loginForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 px-3 small rounded-3 mb-3"></div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-envelope dg-input-icon"></i>
+                        <input asp-for="Email" class="dg-form-input" placeholder="Email address" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-lock dg-input-icon"></i>
+                        <input asp-for="Password" type="password" id="loginPassword" class="dg-form-input dg-input-with-toggle" placeholder="Password" autocomplete="current-password" />
+                        <button type="button" class="dg-password-toggle" data-target="loginPassword" title="Toggle password visibility" tabindex="-1">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-form-options d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check m-0">
+                        <input asp-for="RememberMe" class="form-check-input dg-checkbox" id="rememberMeCheck" />
+                        <label asp-for="RememberMe" class="form-check-label dg-check-label" for="rememberMeCheck">Remember me</label>
+                    </div>
+                    <a href="@Url.Action("ForgotPassword", "Account")" class="dg-forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="dg-btn-primary w-100 btn-auth-submit">
+                    <span class="spinner-border spinner-border-sm btn-spinner d-none me-2" role="status" aria-hidden="true"></span>
+                    <span class="btn-text">Log In <i class="bi bi-arrow-right ms-1"></i></span>
+                </button>
+
+                <!-- OR Divider -->
+                <div class="dg-auth-divider my-3 d-flex align-items-center">
+                    <hr class="flex-grow-1 border-secondary-subtle my-0" />
+                    <span class="px-3 text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; font-weight: 600;">OR</span>
+                    <hr class="flex-grow-1 border-secondary-subtle my-0" />
+                </div>
+
+                <!-- Continue with Google Button -->
+                <button type="button" class="dg-btn-google w-100" id="googleAuthBtn" title="Continue with Google">
+                    <svg class="me-2" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
+            </form>
+
+            <div class="dg-card-footer text-center">
+                <span class="text-muted">Don't have an account?</span>
+                <a href="@Url.Action("Register", "Account")" class="dg-footer-link">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('googleAuthBtn')?.addEventListener('click', function () {
+            alert('Enterprise Google OAuth is active for approved organizational accounts. For demo access, please sign in with your email and password.');
+        });
+    </script>
+}

@@ -1,0 +1,556 @@
+@model DeadlineGuard.ViewModels.DeadlineDetailsViewModel
+@{
+    var d = Model.Deadline;
+    var p = Model.Priority;
+    ViewData["Title"] = d.Title;
+}
+
+<div class="container-fluid px-0">
+    <!-- Header with Actions -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="@p.BadgeCssClass">@p.Classification (@p.Score / 100)</span>
+                <span class="badge bg-light text-dark border">@d.Category</span>
+                @if (p.IsOverdue)
+                {
+                    <span class="badge badge-overdue">OVERDUE</span>
+                }
+                @switch (d.Status)
+                {
+                    case DeadlineStatus.Pending:
+                        <span class="badge bg-secondary">Pending</span>
+                        break;
+                    case DeadlineStatus.InProgress:
+                        <span class="badge bg-primary">In Progress</span>
+                        break;
+                    case DeadlineStatus.Completed:
+                        <span class="badge bg-success">Completed</span>
+                        break;
+                    case DeadlineStatus.Cancelled:
+                        <span class="badge bg-dark">Cancelled</span>
+                        break;
+                }
+            </div>
+            <h2 class="fw-bold mb-0">@d.Title</h2>
+            <div class="text-muted small mt-1">
+                Created on @d.CreatedAt.ToString("MMM dd, yyyy HH:mm") UTC &bull; Last updated @d.UpdatedAt.ToString("MMM dd, yyyy HH:mm") UTC
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            @if (d.Status != DeadlineStatus.Completed)
+            {
+                <button type="button" class="btn btn-success btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#completeModal">
+                    <i class="bi bi-check-lg me-1"></i> Mark Completed
+                </button>
+            }
+            @if (d.Status == DeadlineStatus.Pending)
+            {
+                <form asp-action="MoveInProgress" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@d.Id" />
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-play me-1"></i> Mark In Progress
+                    </button>
+                </form>
+            }
+            @if (d.Status == DeadlineStatus.Completed || d.Status == DeadlineStatus.Cancelled)
+            {
+                <form asp-action="Reopen" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@d.Id" />
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Re-open
+                    </button>
+                </form>
+            }
+            @if (d.Status != DeadlineStatus.Cancelled && d.Status != DeadlineStatus.Completed)
+            {
+                <form asp-action="Cancel" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@d.Id" />
+                    <button type="submit" class="btn btn-outline-dark btn-sm">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                </form>
+            }
+            <a href="@Url.Action("Edit", "Deadlines", new { id = d.Id })" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="bi bi-trash me-1"></i> Delete
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Conflicts Banner for this Deadline -->
+    @if (Model.Conflicts.Any())
+    {
+        <div class="alert alert-warning border-warning shadow-sm mb-4">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Conflict Engine Detected @Model.Conflicts.Count Issue(s) Regarding This Deadline:</h6>
+            <ul class="mb-0 ps-3 small text-muted">
+                @foreach (var c in Model.Conflicts)
+                {
+                    <li class="mb-1">
+                        <strong>@c.Title:</strong> @c.Description &mdash; <span class="text-dark fw-semibold">Action: @c.RecommendedAction</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Top Two Cards: Explainable Priority Engine & Core Deadline Specs -->
+    <div class="row g-4 mb-4">
+        <!-- Explainable Priority Ranking Card -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-clean d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu text-primary fs-5"></i>
+                        <span class="fw-bold">Intelligent Priority Analysis</span>
+                    </div>
+                    <span class="badge bg-light text-dark border">Decision-Support Model</span>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded bg-light border mb-4">
+                        <div>
+                            <div class="text-muted small fw-semibold">CALCULATED PRIORITY SCORE</div>
+                            <div class="display-5 fw-bold text-dark">@p.Score <span class="fs-6 text-muted font-normal">/ 100</span></div>
+                            <div class="small fw-semibold mt-1">
+                                Classification: <span class="@p.BadgeCssClass">@p.Classification</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small fw-semibold">TIME REMAINING</div>
+                            <div class="fs-4 fw-bold @(p.IsOverdue ? "text-danger" : "text-dark")">@p.TimeRemainingText</div>
+                            <div class="small text-muted">Due @d.DueDateTime.ToString("MMM dd, yyyy HH:mm") UTC</div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-variable Breakdown Progress Bars -->
+                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Formula Variable Breakdown</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 border rounded text-center">
+                                <small class="text-muted d-block">Urgency (40%)</small>
+                                <span class="fw-bold fs-5">@p.UrgencyScore</span>
+                                <div class="priority-meter-bar mt-1">
+                                    <div class="priority-meter-fill bg-danger" style="width: @p.UrgencyScore%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 border rounded text-center">
+                                <small class="text-muted d-block">Consequence (30%)</small>
+                                <span class="fw-bold fs-5">@p.ConsequenceScore</span>
+                                <div class="priority-meter-bar mt-1">
+                                    <div class="priority-meter-fill bg-warning" style="width: @p.ConsequenceScore%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 border rounded text-center">
+                                <small class="text-muted d-block">Effort (15%)</small>
+                                <span class="fw-bold fs-5">@p.EffortScore</span>
+                                <div class="priority-meter-bar mt-1">
+                                    <div class="priority-meter-fill bg-primary" style="width: @p.EffortScore%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 border rounded text-center">
+                                <small class="text-muted d-block">Importance (15%)</small>
+                                <span class="fw-bold fs-5">@p.ImportanceScore</span>
+                                <div class="priority-meter-bar mt-1">
+                                    <div class="priority-meter-fill bg-info" style="width: @p.ImportanceScore%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explainability Section -->
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="d-flex align-items-start gap-2 mb-2">
+                            <i class="bi bi-chat-left-quote text-primary fs-5 mt-1"></i>
+                            <div>
+                                <span class="fw-bold d-block text-dark">Why This Deadline Ranks Here:</span>
+                                <span class="text-muted small">@p.Explanation</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-2 pt-2 border-top">
+                            <i class="bi bi-lightning-charge-fill text-warning fs-5 mt-1"></i>
+                            <div>
+                                <span class="fw-bold d-block text-dark">Suggested Next Action:</span>
+                                <span class="text-dark small">@p.SuggestedAction</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deadline Specifications Card -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-clean d-flex align-items-center gap-2">
+                    <i class="bi bi-card-checklist text-indigo"></i>
+                    <span class="fw-bold">Specifications & Financial Profile</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">@(string.IsNullOrWhiteSpace(d.Description) ? "No detailed description provided." : d.Description)</p>
+
+                    <table class="table table-sm align-middle small mb-3">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold" style="width: 40%;">Category:</td>
+                                <td><span class="badge bg-light text-dark border">@d.Category</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Due Date (UTC):</td>
+                                <td><strong>@d.DueDateTime.ToString("MMM dd, yyyy HH:mm") UTC</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Estimated Effort:</td>
+                                <td>@d.EstimatedEffortMinutes minutes (@(d.EstimatedEffortMinutes / 60.0) hours)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Importance Level:</td>
+                                <td>@d.ImportanceLevel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Consequence Level:</td>
+                                <td>@d.ConsequenceLevel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Consequence Type:</td>
+                                <td>@d.ConsequenceType</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Potential Penalty:</td>
+                                <td>
+                                    @if (d.PotentialPenaltyAmount.HasValue && d.PotentialPenaltyAmount > 0)
+                                    {
+                                        <span class="text-danger fw-bold">@d.CurrencyCode @d.PotentialPenaltyAmount.Value.ToString("F2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">None (Non-monetary)</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Recurrence:</td>
+                                <td>
+                                    @if (d.IsRecurring)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border">
+                                            <i class="bi bi-repeat"></i> Every @d.RecurrenceInterval @d.RecurrenceRule
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">One-time deadline</span>
+                                    }
+                                </td>
+                            </tr>
+                            @if (d.Status == DeadlineStatus.Completed)
+                            {
+                                <tr>
+                                    <td class="text-muted fw-semibold">Completed On:</td>
+                                    <td><span class="text-success fw-bold">@d.LastCompletedAt?.ToString("MMM dd, yyyy HH:mm") UTC</span></td>
+                                </tr>
+                                @if (!string.IsNullOrWhiteSpace(d.CompletionNotes))
+                                {
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Completion Notes:</td>
+                                        <td>@d.CompletionNotes</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supporting Documents & Scheduled Reminders Row -->
+    <div class="row g-4 mb-4">
+        <!-- Supporting Documents Card -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-clean d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-paperclip text-primary fs-5"></i>
+                        <span class="fw-bold">Supporting Documents (@Model.Attachments.Count)</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 0.8rem;" data-bs-toggle="collapse" data-bs-target="#uploadSection">
+                        <i class="bi bi-upload me-1"></i> Attach File
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Collapsible Upload Box -->
+                    <div class="collapse mb-3" id="uploadSection">
+                        <div class="p-3 bg-light rounded border">
+                            <form asp-controller="Attachments" asp-action="Upload" method="post" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="deadlineId" value="@d.Id" />
+                                <div class="mb-2">
+                                    <label class="form-label small fw-semibold text-muted">Upload Document (PDF, Images, DOCX, XLSX, TXT - max 15MB)</label>
+                                    <input type="file" name="file" class="form-control form-control-sm" required />
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-indigo btn-sm">Upload & Secure</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    @if (!Model.Attachments.Any())
+                    {
+                        <div class="p-4 text-center text-muted small">
+                            <i class="bi bi-file-earmark-arrow-up fs-2 d-block mb-1 text-secondary"></i>
+                            No documents attached yet. Upload invoices, registration forms, or proof of payment.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var att in Model.Attachments)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                        <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                                        <div class="text-truncate">
+                                            <a href="@Url.Action("Download", "Attachments", new { id = att.Id })" class="fw-semibold text-dark text-decoration-none">
+                                                @att.OriginalFileName
+                                            </a>
+                                            <div class="text-muted" style="font-size: 0.75rem;">
+                                                @(att.FileSizeBytes / 1024) KB &bull; Uploaded @att.UploadedAt.ToString("MMM dd, yyyy")
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-1">
+                                        <a href="@Url.Action("Download", "Attachments", new { id = att.Id })" class="btn btn-outline-secondary btn-sm py-0 px-2" title="Download">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <form asp-controller="Attachments" asp-action="Delete" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@att.Id" />
+                                            <input type="hidden" name="deadlineId" value="@d.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" title="Delete" onclick="return confirm('Delete this attachment?');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Reminders Card -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-clean d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bell text-warning fs-5"></i>
+                        <span class="fw-bold">Scheduled Reminders (@Model.Reminders.Count)</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 0.8rem;" data-bs-toggle="collapse" data-bs-target="#newReminderSection">
+                        <i class="bi bi-plus-lg me-1"></i> Add Reminder
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Collapsible Add Reminder Form -->
+                    <div class="collapse mb-3" id="newReminderSection">
+                        <div class="p-3 bg-light rounded border">
+                            <form asp-controller="Reminders" asp-action="Add" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="deadlineId" value="@d.Id" />
+                                <div class="row g-2 mb-2">
+                                    <div class="col-7">
+                                        <label class="form-label small fw-semibold text-muted">Reminder Date & Time (UTC)</label>
+                                        <input type="datetime-local" name="reminderTime" class="form-control form-control-sm" required />
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="form-label small fw-semibold text-muted">Channel</label>
+                                        <select name="channel" class="form-select form-select-sm">
+                                            <option value="InApp">In-App Notification</option>
+                                            <option value="Email">Email Notification</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-indigo btn-sm">Schedule Reminder</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    @if (!Model.Reminders.Any())
+                    {
+                        <div class="p-4 text-center text-muted small">
+                            <i class="bi bi-bell-slash fs-2 d-block mb-1 text-secondary"></i>
+                            No reminders set. Click 'Add Reminder' to schedule in-app or email alerts.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var rem in Model.Reminders)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                                    <div>
+                                        <div class="fw-semibold text-dark">
+                                            <i class="bi @(rem.Channel == ReminderChannel.Email ? "bi-envelope" : "bi-app-indicator") me-1 text-primary"></i>
+                                            @rem.ReminderTime.ToString("MMM dd, yyyy HH:mm") UTC
+                                        </div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">
+                                            Channel: @rem.Channel &bull;
+                                            Status:
+                                            @if (rem.Status == ReminderStatus.Sent)
+                                            {
+                                                <span class="text-success fw-bold">Sent @rem.SentAt?.ToString("MMM dd, HH:mm")</span>
+                                            }
+                                            else if (rem.Status == ReminderStatus.Failed)
+                                            {
+                                                <span class="text-danger fw-bold">Failed (@rem.FailureReason)</span>
+                                            }
+                                            else if (rem.Status == ReminderStatus.Skipped)
+                                            {
+                                                <span class="text-muted">Skipped</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-primary">Scheduled (@(rem.IsEnabled ? "Active" : "Disabled"))</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-1">
+                                        <form asp-controller="Reminders" asp-action="Toggle" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@rem.Id" />
+                                            <input type="hidden" name="deadlineId" value="@d.Id" />
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm py-0 px-2" title="@(rem.IsEnabled ? "Disable" : "Enable")">
+                                                <i class="bi @(rem.IsEnabled ? "bi-toggle-on text-success" : "bi-toggle-off text-muted")"></i>
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="Reminders" asp-action="Delete" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@rem.Id" />
+                                            <input type="hidden" name="deadlineId" value="@d.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" title="Remove" onclick="return confirm('Remove this reminder?');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit History Timeline -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header-clean d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-secondary"></i>
+            <span class="fw-bold">Deadline Lifecycle & Audit History</span>
+        </div>
+        <div class="card-body">
+            @if (!Model.History.Any())
+            {
+                <div class="p-3 text-center text-muted small">No audit history records available.</div>
+            }
+            else
+            {
+                <div class="timeline ps-3 border-start">
+                    @foreach (var h in Model.History)
+                    {
+                        <div class="mb-3 position-relative ps-3">
+                            <span class="position-absolute start-0 top-0 translate-middle p-1 bg-primary border border-light rounded-circle"></span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark small">@h.Action</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">@h.ChangedAt.ToString("MMM dd, yyyy HH:mm") UTC</span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(h.NewValue))
+                            {
+                                <div class="small text-muted">@h.NewValue</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(h.Notes))
+                            {
+                                <div class="small text-secondary fst-italic">"@h.Notes"</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Complete Modal -->
+<div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Mark as Completed</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Complete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@d.Id" />
+                <div class="modal-body">
+                    <p>Mark <strong>@d.Title</strong> as completed?</p>
+                    @if (d.IsRecurring)
+                    {
+                        <div class="alert alert-info py-2 small">
+                            <i class="bi bi-repeat me-1"></i> This is a recurring task (@d.RecurrenceRule). Marking it completed will preserve this completed record and automatically generate the next occurrence!
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Completion Notes (Optional)</label>
+                        <textarea name="completionNotes" class="form-control" rows="3" placeholder="Receipt number, confirmation code, or notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Confirm Completion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@d.Id" />
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@d.Title</strong>?</p>
+                    <p class="small text-danger mb-0">This will permanently delete this deadline, its attachments, reminders, and history records. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Permanently Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,183 @@
+@{
+    ViewData["Title"] = "Never Miss a Critical Deadline or Suffer Costly Penalties";
+}
+
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="mb-3">
+                    <img src="~/images/logo-mark.png" alt="DeadlineGuard" style="height: 72px; width: auto;" class="mb-2" />
+                </div>
+                <span class="badge bg-indigo-soft text-indigo px-3 py-2 rounded-pill mb-3 fw-semibold border border-indigo text-light">
+                    🛡️ Enterprise-Grade Deadline & Penalty Protection
+                </span>
+                <h1 class="display-4 fw-bold mb-4 tracking-tight">
+                    Miss Less. Stress Less.<br />Guard Your Deadlines & Finances.
+                </h1>
+                <p class="lead text-slate-light mb-4 px-md-5 text-light opacity-75">
+                    Traditional to-do apps treat renewing a passport the same as buying groceries. DeadlineGuard uses an intelligent multi-factor ranking engine to surface obligations by financial penalty, lost opportunity, and preparation effort.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-indigo btn-lg px-4 shadow">
+                        <i class="bi bi-rocket-takeoff me-2"></i> Get Started Free
+                    </a>
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Sign In
+                    </a>
+                </div>
+                <div class="mt-4 pt-2 text-white-50 small">
+                    <i class="bi bi-shield-check me-1"></i> Real-time penalty protection &bull; Intelligent conflict detection &bull; Proactive alerts
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problem & Solution Section -->
+<section class="py-5 bg-white border-bottom" id="features">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold letter-spacing-1">The Reality</h6>
+            <h2 class="fw-bold">Deadlines Are Not Created Equal</h2>
+            <p class="text-muted max-w-2xl mx-auto">
+                Missing a tax deadline costs hundreds in penalties. Missing an exam or visa renewal alters life plans. DeadlineGuard analyzes the true risk profile of every responsibility.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-3 p-3 mb-3 fs-3">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <h5 class="fw-bold">Financial Penalty Tracking</h5>
+                    <p class="text-muted small">
+                        Track concrete monetary penalties, compounding late fees, and rate hikes before they take effect on utilities, licenses, taxes, and credit facilities.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-3 p-3 mb-3 fs-3">
+                        <i class="bi bi-stopwatch"></i>
+                    </div>
+                    <h5 class="fw-bold">Effort-Aware Preparation</h5>
+                    <p class="text-muted small">
+                        A 5-hour application due tomorrow cannot wait until the final hour. Our engine factors estimated effort to ensure you start preparing in time.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-info-subtle text-info rounded-3 p-3 mb-3 fs-3">
+                        <i class="bi bi-intersect"></i>
+                    </div>
+                    <h5 class="fw-bold">Conflict & Overload Detection</h5>
+                    <p class="text-muted small">
+                        Identifies same-day pileups, overlapping high-consequence deadlines, and preparation bottlenecks that exceed your daily available focus hours.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ranking Algorithm Section -->
+<section class="py-5 bg-light" id="ranking">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill mb-3">Transparent Decision Support</span>
+                <h2 class="fw-bold mb-3">The Smart Priority-Ranking Formula</h2>
+                <p class="text-muted mb-4">
+                    DeadlineGuard does not rely on opaque black-box magic. Every score from 0 to 100 is computed through a calibrated, explainable multi-variable model:
+                </p>
+
+                <div class="d-flex flex-column gap-3">
+                    <div class="card p-3 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark"><i class="bi bi-clock-history text-danger me-2"></i>Urgency (40%)</span>
+                            <span class="badge bg-danger">Critical Weight</span>
+                        </div>
+                        <small class="text-muted">Dynamically scales from 10 (14+ days) to 85 (&lt;24 hours) and 100 for overdue obligations.</small>
+                    </div>
+
+                    <div class="card p-3 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark"><i class="bi bi-exclamation-diamond text-warning me-2"></i>Consequence Severity (30%)</span>
+                            <span class="badge bg-warning text-dark">High Weight</span>
+                        </div>
+                        <small class="text-muted">Evaluates potential financial penalties, lost opportunities, and administrative sanctions.</small>
+                    </div>
+
+                    <div class="card p-3 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark"><i class="bi bi-tools text-primary me-2"></i>Estimated Effort (15%)</span>
+                            <span class="badge bg-primary">Prep Weight</span>
+                        </div>
+                        <small class="text-muted">Boosts tasks requiring multi-hour investments when the remaining runway is shrinking.</small>
+                    </div>
+
+                    <div class="card p-3 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark"><i class="bi bi-star-fill text-info me-2"></i>User Importance (15%)</span>
+                            <span class="badge bg-info text-dark">Strategic Weight</span>
+                        </div>
+                        <small class="text-muted">Incorporates your subjective personal or business priority weighting.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card p-4 shadow-sm border">
+                    <h5 class="fw-bold mb-3">Live Ranking Engine Example</h5>
+                    
+                    <div class="border rounded-3 p-3 mb-3 bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">Q3 Estimated Federal Tax Filing</span>
+                            <span class="badge bg-danger">Score: 92.4 &bull; Critical</span>
+                        </div>
+                        <p class="small text-muted mb-2">
+                            <strong>Why it ranks #1:</strong> Due in 18 hours, $450 late penalty, and requires 3.0 hours of preparation.
+                        </p>
+                        <div class="p-2 bg-white rounded border small text-dark">
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
+                            <strong>Suggested Next Action:</strong> Prioritize this task first. Begin the preparation work today without delay.
+                        </div>
+                    </div>
+
+                    <div class="border rounded-3 p-3 bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">Car Insurance Policy Renewal</span>
+                            <span class="badge bg-warning text-dark">Score: 68.5 &bull; High</span>
+                        </div>
+                        <p class="small text-muted mb-2">
+                            <strong>Why it ranks #2:</strong> Due in 3 days, $150 penalty for lapse, requires 30 mins effort.
+                        </p>
+                        <div class="p-2 bg-white rounded border small text-dark">
+                            <i class="bi bi-calendar-check text-primary me-1"></i>
+                            <strong>Suggested Next Action:</strong> Schedule completion within the next 24 hours.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to action -->
+<section class="py-5 bg-white text-center">
+    <div class="container py-4">
+        <h2 class="fw-bold mb-3">Take Full Control of Your Obligations Today</h2>
+        <p class="text-muted mb-4 max-w-xl mx-auto">
+            Experience proactive reminders, recurring calendar schedules, and smart decision support.
+        </p>
+        <a href="@Url.Action("Register", "Account")" class="btn btn-indigo btn-lg px-4 shadow">
+            Create Free Account
+        </a>
+    </div>
+</section>

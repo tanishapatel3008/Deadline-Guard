@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DeadlineGuard.Tests/DeadlineGuard.Tests.csproj" />
+  <Project Path="DeadlineGuard/DeadlineGuard.csproj" />
+</Solution>

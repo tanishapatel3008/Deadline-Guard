@@ -1,0 +1,243 @@
+@model DeadlineGuard.ViewModels.DeadlineFormViewModel
+@{
+    ViewData["Title"] = "Create New Deadline";
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Create New Deadline</h3>
+            <p class="text-muted small mb-0">Define timing, consequences, and preparation requirements for priority intelligence</p>
+        </div>
+        <a href="@Url.Action("Index", "Deadlines")" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+        <div class="row g-4">
+            <!-- Left Column: Core Deadline Information -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header-clean d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <span class="fw-bold">General Information</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g. Annual Vehicle Registration Renewal" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label small fw-semibold text-muted"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Provide context, required portal links, or documentation requirements..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Category" class="form-label small fw-semibold text-muted"></label>
+                                <select asp-for="Category" class="form-select">
+                                    <option value="Bills">Bills & Utilities</option>
+                                    <option value="Education">Education & Courses</option>
+                                    <option value="Applications">Applications & Admissions</option>
+                                    <option value="GovernmentDocuments">Government Documents & Visas</option>
+                                    <option value="Renewals">Renewals & Subscriptions</option>
+                                    <option value="Work">Work & Projects</option>
+                                    <option value="Personal">Personal Responsibilities</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="DueDateTime" class="form-label small fw-semibold text-muted"></label>
+                                <input asp-for="DueDateTime" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="DueDateTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="EstimatedEffortMinutes" class="form-label small fw-semibold text-muted"></label>
+                                <div class="input-group">
+                                    <input asp-for="EstimatedEffortMinutes" type="number" class="form-control" min="0" step="15" />
+                                    <span class="input-group-text bg-light text-muted">Minutes</span>
+                                </div>
+                                <small class="text-muted">How many minutes of active work this requires.</small>
+                                <span asp-validation-for="EstimatedEffortMinutes" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ImportanceLevel" class="form-label small fw-semibold text-muted"></label>
+                                <select asp-for="ImportanceLevel" class="form-select">
+                                    <option value="Low">Low (Routine task)</option>
+                                    <option value="Medium" selected>Medium (Standard obligation)</option>
+                                    <option value="High">High (High personal/business value)</option>
+                                    <option value="Critical">Critical (Top strategic importance)</option>
+                                </select>
+                                <span asp-validation-for="ImportanceLevel" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recurrence Configuration Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header-clean d-flex align-items-center gap-2">
+                        <i class="bi bi-repeat text-indigo"></i>
+                        <span class="fw-bold">Recurrence Schedule (Optional)</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input asp-for="IsRecurring" class="form-check-input" type="checkbox" id="recurrenceToggle" />
+                            <label asp-for="IsRecurring" class="form-check-label fw-semibold small">This is a recurring deadline</label>
+                        </div>
+
+                        <div id="recurrenceOptions" style="display: @(Model.IsRecurring ? "block" : "none");">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label asp-for="RecurrenceRule" class="form-label small fw-semibold text-muted"></label>
+                                    <select asp-for="RecurrenceRule" class="form-select">
+                                        <option value="None">None</option>
+                                        <option value="Daily">Daily</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                        <option value="CustomDays">Custom Days</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="RecurrenceInterval" class="form-label small fw-semibold text-muted"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted">Every</span>
+                                        <input asp-for="RecurrenceInterval" type="number" class="form-control" min="1" max="365" />
+                                        <span class="input-group-text bg-light text-muted">Interval(s)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label asp-for="RecurrenceEndDate" class="form-label small fw-semibold text-muted"></label>
+                                <input asp-for="RecurrenceEndDate" type="date" class="form-control" />
+                                <small class="text-muted">Optional: stop generating occurrences after this date.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Consequence & Reminder Intelligence -->
+            <div class="col-lg-5">
+                <!-- Consequence Severity Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header-clean d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-octagon text-danger"></i>
+                        <span class="fw-bold">Consequence & Penalty Profile</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="ConsequenceLevel" class="form-label small fw-semibold text-muted"></label>
+                            <select asp-for="ConsequenceLevel" class="form-select">
+                                <option value="Minor">Minor (Minor inconvenience)</option>
+                                <option value="Moderate" selected>Moderate (Standard late fees or hassle)</option>
+                                <option value="Significant">Significant (Large penalty, lost discount)</option>
+                                <option value="Severe">Severe (Major fines, license forfeiture, cancellation)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConsequenceType" class="form-label small fw-semibold text-muted"></label>
+                            <select asp-for="ConsequenceType" class="form-select">
+                                <option value="FinancialPenalty">Financial Penalty / Late Fee</option>
+                                <option value="LostOpportunity">Lost Opportunity / Admission / Career</option>
+                                <option value="ServiceInterruption">Service Interruption / Shutoff</option>
+                                <option value="LegalAdministrative">Legal or Administrative Sanctions</option>
+                                <option value="OrdinaryInconvenience">Ordinary Inconvenience</option>
+                            </select>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-8">
+                                <label asp-for="PotentialPenaltyAmount" class="form-label small fw-semibold text-muted"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted">$</span>
+                                    <input asp-for="PotentialPenaltyAmount" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="PotentialPenaltyAmount" class="text-danger small"></span>
+                            </div>
+                            <div class="col-4">
+                                <label asp-for="CurrencyCode" class="form-label small fw-semibold text-muted"></label>
+                                <input asp-for="CurrencyCode" class="form-control text-uppercase" placeholder="USD" maxlength="5" />
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label asp-for="CustomPriorityWeight" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="CustomPriorityWeight" type="number" min="0" max="100" class="form-control" placeholder="Leave empty for auto formula" />
+                            <small class="text-muted">Optional: manual priority score override (0-100).</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reminder Presets Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header-clean d-flex align-items-center gap-2">
+                        <i class="bi bi-bell text-warning"></i>
+                        <span class="fw-bold">Automated Reminder Presets</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-3">Select when you want to receive proactive notifications before this deadline:</p>
+
+                        <div class="form-check mb-2">
+                            <input asp-for="Reminder7Days" class="form-check-input" type="checkbox" />
+                            <label asp-for="Reminder7Days" class="form-check-label small fw-medium">7 days before deadline</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input asp-for="Reminder3Days" class="form-check-input" type="checkbox" />
+                            <label asp-for="Reminder3Days" class="form-check-label small fw-medium">3 days before deadline</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input asp-for="Reminder1Day" class="form-check-input" type="checkbox" />
+                            <label asp-for="Reminder1Day" class="form-check-label small fw-medium">1 day (24 hours) before deadline</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="Reminder1Hour" class="form-check-input" type="checkbox" />
+                            <label asp-for="Reminder1Hour" class="form-check-label small fw-medium">1 hour before deadline</label>
+                        </div>
+
+                        <hr />
+
+                        <div class="form-check form-switch">
+                            <input asp-for="ReminderEmail" class="form-check-input" type="checkbox" />
+                            <label asp-for="ReminderEmail" class="form-check-label small fw-semibold">Also dispatch Email Reminders</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="@Url.Action("Index", "Deadlines")" class="btn btn-light px-4">Cancel</a>
+            <button type="submit" class="btn btn-indigo px-5 py-2 shadow-sm">
+                <i class="bi bi-shield-check me-1"></i> Save & Compute Priority
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('recurrenceToggle')?.addEventListener('change', function () {
+            const opts = document.getElementById('recurrenceOptions');
+            if (opts) {
+                opts.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    </script>
+}

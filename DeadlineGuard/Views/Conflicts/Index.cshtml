@@ -1,0 +1,103 @@
+@model List<DeadlineGuard.Services.DeadlineConflict>
+@{
+    ViewData["Title"] = "Conflict & Overload Center";
+    int dailyPrep = (int)(ViewData["DailyPrepMinutes"] ?? 240);
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Conflict & Overload Center</h3>
+            <p class="text-muted small mb-0">
+                Multi-deadline pileup detection, preparation bottlenecks, and clustering intelligence &bull; Configured daily capacity: @dailyPrep mins (@((dailyPrep / 60.0).ToString("F1")) hrs)
+            </p>
+        </div>
+        <a href="@Url.Action("Profile", "Account")" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-sliders me-1"></i> Adjust Daily Capacity
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm p-5 text-center">
+            <div class="mb-3">
+                <i class="bi bi-shield-check text-success fs-1"></i>
+            </div>
+            <h4 class="fw-bold">No Deadline Conflicts Detected!</h4>
+            <p class="text-muted max-w-md mx-auto small">
+                Your obligations are sufficiently spaced, and their required preparation effort fits comfortably within your daily focus capacity. Keep up the great planning!
+            </p>
+            <div class="mt-3">
+                <a href="@Url.Action("Index", "Dashboard")" class="btn btn-indigo btn-sm">Back to Dashboard</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning border-warning shadow-sm mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                <div>
+                    <strong>Attention Needed:</strong> The intelligent engine detected <strong>@Model.Count conflict condition(s)</strong> that threaten on-time completion or risk penalty exposure.
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var conflict in Model)
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm border-start border-4 @(conflict.Severity == DeadlineGuard.Services.ConflictSeverity.Critical ? "border-danger" : "border-warning")">
+                        <div class="card-body p-4">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="@conflict.SeverityBadgeClass">@conflict.Severity.ToString().ToUpper()</span>
+                                        <span class="badge bg-light text-dark border">@conflict.Type</span>
+                                    </div>
+                                    <h5 class="fw-bold mb-0 text-dark">@conflict.Title</h5>
+                                </div>
+                                <div class="text-end text-muted small">
+                                    <div><strong>Window:</strong> @conflict.WindowStart.ToString("MMM dd, HH:mm") &ndash; @conflict.WindowEnd.ToString("MMM dd, HH:mm") UTC</div>
+                                    <div>Required Prep: <strong>@conflict.TotalEstimatedMinutes mins</strong> (@((conflict.TotalEstimatedMinutes / 60.0).ToString("F1")) hrs)</div>
+                                </div>
+                            </div>
+
+                            <p class="text-dark mb-3">@conflict.Description</p>
+
+                            <!-- Affected Deadlines -->
+                            <h6 class="fw-bold small text-muted text-uppercase mb-2">Affected Deadlines:</h6>
+                            <div class="row g-2 mb-3">
+                                @foreach (var ad in conflict.AffectedDeadlines)
+                                {
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="p-2 rounded bg-light border d-flex justify-content-between align-items-center">
+                                            <div class="overflow-hidden">
+                                                <a href="@Url.Action("Details", "Deadlines", new { id = ad.Id })" class="fw-semibold text-dark text-decoration-none d-block text-truncate">
+                                                    @ad.Title
+                                                </a>
+                                                <small class="text-muted d-block">
+                                                    Due @ad.DueDateTime.ToString("MMM dd, HH:mm") &bull; @ad.EstimatedEffortMinutes m
+                                                </small>
+                                            </div>
+                                            <span class="badge bg-secondary-subtle text-secondary border ms-2">@ad.Category</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Actionable Recommendation -->
+                            <div class="p-3 rounded bg-white border border-primary-subtle d-flex align-items-start gap-2">
+                                <i class="bi bi-lightbulb-fill text-warning fs-5 mt-1"></i>
+                                <div>
+                                    <strong class="text-primary d-block">Recommended Strategic Action:</strong>
+                                    <span class="text-dark small">@conflict.RecommendedAction</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

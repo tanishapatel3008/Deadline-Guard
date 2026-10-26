@@ -1,0 +1,395 @@
+@model DeadlineGuard.ViewModels.DashboardViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Dashboard";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var firstName = currentUser?.FullName?.Split(' ')[0] ?? "Alex";
+    
+    // Greeting based on time of day
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "GOOD MORNING," : (hour < 17 ? "GOOD AFTERNOON," : "GOOD EVENING,");
+    var totalActive = Model.ActiveDeadlinesCount;
+    var cCrit = Model.PriorityCounts.Count > 0 ? Model.PriorityCounts[0] : 0;
+    var cHigh = Model.PriorityCounts.Count > 1 ? Model.PriorityCounts[1] : 0;
+    var cMed = Model.PriorityCounts.Count > 2 ? Model.PriorityCounts[2] : 0;
+    var cLow = Model.PriorityCounts.Count > 3 ? Model.PriorityCounts[3] : 0;
+}
+
+<div class="container-fluid px-0">
+    <!-- Top Row: Welcome Banner (Left) & Quick Action Cards (Right) -->
+    <div class="row g-4 mb-4 align-items-stretch">
+        <div class="col-xl-8 col-lg-7">
+            <div class="dg-welcome-banner h-100">
+                <div class="dg-welcome-content">
+                    <div class="dg-welcome-eyebrow">@greeting</div>
+                    <h1 class="dg-welcome-name">@firstName!</h1>
+                    <p class="dg-welcome-sub">Stay on track. Avoid penalties. Keep your future secure.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="dg-action-cards-stack">
+                <!-- Action Card 1: Add New Deadline -->
+                <a href="@Url.Action("Create", "Deadlines")" class="dg-quick-action-card">
+                    <div class="dg-quick-icon-btn dg-quick-icon-purple">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <div class="dg-quick-action-info">
+                        <div class="dg-quick-action-title">Add New Deadline</div>
+                        <div class="dg-quick-action-sub">Create a new deadline with documents and reminders</div>
+                    </div>
+                    <i class="bi bi-chevron-right dg-quick-chevron"></i>
+                </a>
+
+                <!-- Action Card 2: View Calendar -->
+                <a href="@Url.Action("Calendar", "Dashboard")" class="dg-quick-action-card">
+                    <div class="dg-quick-icon-btn dg-quick-icon-blue">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+                    <div class="dg-quick-action-info">
+                        <div class="dg-quick-action-title">View Calendar</div>
+                        <div class="dg-quick-action-sub">Check your upcoming deadlines</div>
+                    </div>
+                    <i class="bi bi-chevron-right dg-quick-chevron"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Conflicts Banner (if any detected) -->
+    @if (Model.ActiveConflicts.Any())
+    {
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center justify-content-between p-3" role="alert" style="background-color: #fff9e6; border: 1px solid #fde68a !important;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="fs-4 text-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">@Model.ActiveConflicts.Count Potential Deadline Conflict(s) Detected!</h6>
+                    <small class="text-muted">High task density, same-day pileups, or required effort exceeds your daily available focus hours.</small>
+                </div>
+            </div>
+            <a href="@Url.Action("Index", "Conflicts")" class="btn btn-warning btn-sm fw-semibold rounded-pill px-3">
+                Review Conflicts <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    }
+
+    <!-- Row of 6 Statistic Cards (Matching Reference Image 2) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Active Tasks -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Index", "Deadlines")" class="dg-stat-card dg-stat-card-active">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.ActiveDeadlinesCount</div>
+                        <div class="dg-stat-label">Active Tasks</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+
+        <!-- 2. Due Today -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Index", "Deadlines", new { dateFilter = "today" })" class="dg-stat-card dg-stat-card-today">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.DueTodayCount</div>
+                        <div class="dg-stat-label">Due Today</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+
+        <!-- 3. Next 7 Days -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Index", "Deadlines", new { dateFilter = "next7" })" class="dg-stat-card dg-stat-card-next7">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.DueNext7DaysCount</div>
+                        <div class="dg-stat-label">Next 7 Days</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+
+        <!-- 4. Overdue -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Overdue", "Deadlines")" class="dg-stat-card dg-stat-card-overdue">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.OverdueCount</div>
+                        <div class="dg-stat-label">Overdue</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+
+        <!-- 5. Critical / High -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Index", "Deadlines", new { priorityFilter = "Critical" })" class="dg-stat-card dg-stat-card-critical">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-shield-exclamation"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.CriticalHighCount</div>
+                        <div class="dg-stat-label">Critical / High</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+
+        <!-- 6. Completed -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <a href="@Url.Action("Completed", "Deadlines")" class="dg-stat-card dg-stat-card-completed">
+                <div class="dg-stat-card-left">
+                    <div class="dg-stat-icon-wrap">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <div>
+                        <div class="dg-stat-value">@Model.CompletedCount</div>
+                        <div class="dg-stat-label">Completed</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right dg-stat-arrow"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Two-Column Row: Today's Action Plan (Left) & Active Priority Distribution (Right) -->
+    <div class="row g-4 align-items-stretch">
+        <!-- Left: Today's Action Plan -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="dg-plan-card h-100">
+                <div class="dg-card-header-bar">
+                    <h5 class="dg-card-header-title">
+                        <i class="bi bi-stars text-primary"></i>
+                        <span>Today's Action Plan</span>
+                    </h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="dg-pill-badge">
+                            <i class="bi bi-sliders me-1"></i> Ranked by Priority, Urgency &amp; Effort
+                        </span>
+                        <a href="@Url.Action("Index", "Deadlines")" class="dg-view-all-link">
+                            View All <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                @if (!Model.TodayActionPlan.Any())
+                {
+                    <!-- Empty State matching Reference Image 2 exactly -->
+                    <div class="dg-empty-state-wrap">
+                        <img src="~/images/empty-tasks.png" alt="All caught up!" class="dg-empty-img" />
+                        <h4 class="dg-empty-title">All caught up!</h4>
+                        <p class="dg-empty-desc">You have no active or urgent deadlines pending right now.</p>
+                        <a href="@Url.Action("Create", "Deadlines")" class="dg-btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i> Add New Deadline
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <!-- Prioritized Action Plan List -->
+                    <div class="d-flex flex-column gap-2 flex-grow-1">
+                        @foreach (var item in Model.TodayActionPlan)
+                        {
+                            var d = item.Deadline;
+                            var p = item.Priority;
+                            var isOverdue = d.DueDateTime < DateTime.UtcNow;
+                            var badgeClass = p.Classification switch
+                            {
+                                DeadlineGuard.Models.Enums.PriorityClassification.Critical => "badge-priority-critical",
+                                DeadlineGuard.Models.Enums.PriorityClassification.High => "badge-priority-high",
+                                DeadlineGuard.Models.Enums.PriorityClassification.Medium => "badge-priority-medium",
+                                _ => "badge-priority-low"
+                            };
+
+                            <div class="dg-task-row">
+                                <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                                    <span class="badge @badgeClass" style="font-size: 0.72rem; min-width: 68px; text-align: center;">
+                                        @p.Classification
+                                    </span>
+                                    <div class="min-w-0">
+                                        <a href="@Url.Action("Details", "Deadlines", new { id = d.Id })" class="dg-task-title d-block text-truncate">
+                                            @d.Title
+                                        </a>
+                                        <div class="dg-task-meta">
+                                            <span><i class="bi bi-tag me-1"></i>@d.Category</span>
+                                            <span class="@(isOverdue ? "text-danger fw-bold" : "")">
+                                                <i class="bi bi-clock me-1"></i>Due @d.DueDateTime.ToString("MMM dd, yyyy HH:mm")
+                                            </span>
+                                            @if (d.PotentialPenaltyAmount.HasValue && d.PotentialPenaltyAmount.Value > 0)
+                                            {
+                                                <span class="text-danger fw-semibold">
+                                                    <i class="bi bi-cash me-1"></i>@d.PotentialPenaltyAmount.Value.ToString("C") penalty
+                                                </span>
+                                            }
+                                            <span><i class="bi bi-hourglass-split me-1"></i>@(d.EstimatedEffortMinutes / 60.0)h prep</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <form asp-controller="Deadlines" asp-action="Complete" asp-route-id="@d.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-1" title="Mark Complete">
+                                            <i class="bi bi-check-lg"></i> Done
+                                        </button>
+                                    </form>
+                                    <a href="@Url.Action("Details", "Deadlines", new { id = d.Id })" class="btn btn-sm btn-light rounded-pill px-2 py-1" title="Details">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right: Active Priority Distribution -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="dg-chart-card h-100">
+                <div class="dg-card-header-bar">
+                    <h5 class="dg-card-header-title">
+                        <i class="bi bi-pie-chart-fill text-primary"></i>
+                        <span>Active Priority Distribution</span>
+                    </h5>
+                </div>
+
+                <div class="dg-chart-body">
+                    <!-- Donut Chart with Center Total -->
+                    <div class="dg-chart-canvas-wrap">
+                        <canvas id="priorityDonutChart"></canvas>
+                        <div class="dg-chart-center-text">
+                            <div class="dg-chart-center-val">@totalActive</div>
+                            <div class="dg-chart-center-lbl">Total</div>
+                        </div>
+                    </div>
+
+                    <!-- Legend Items -->
+                    <div class="dg-legend-list">
+                        <div class="dg-legend-item">
+                            <div class="dg-legend-item-left">
+                                <span class="dg-legend-dot" style="background-color: #ef4444;"></span>
+                                <span>Critical</span>
+                            </div>
+                            <span class="dg-legend-count">@cCrit</span>
+                        </div>
+
+                        <div class="dg-legend-item">
+                            <div class="dg-legend-item-left">
+                                <span class="dg-legend-dot" style="background-color: #f59e0b;"></span>
+                                <span>High</span>
+                            </div>
+                            <span class="dg-legend-count">@cHigh</span>
+                        </div>
+
+                        <div class="dg-legend-item">
+                            <div class="dg-legend-item-left">
+                                <span class="dg-legend-dot" style="background-color: #3b82f6;"></span>
+                                <span>Medium</span>
+                            </div>
+                            <span class="dg-legend-count">@cMed</span>
+                        </div>
+
+                        <div class="dg-legend-item">
+                            <div class="dg-legend-item-left">
+                                <span class="dg-legend-dot" style="background-color: #10b981;"></span>
+                                <span>Low</span>
+                            </div>
+                            <span class="dg-legend-count">@cLow</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Tip Card matching Reference Image 2 -->
+                <a href="@Url.Action("Index", "Deadlines", new { sortBy = "priority" })" class="dg-tip-card">
+                    <div class="dg-tip-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <div class="dg-tip-text">
+                        Ranked by urgency, consequence and effort to help you focus on what matters most.
+                    </div>
+                    <i class="bi bi-arrow-right dg-tip-arrow"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('priorityDonutChart');
+            if (ctx) {
+                const total = @totalActive;
+                const cCrit = @cCrit;
+                const cHigh = @cHigh;
+                const cMed = @cMed;
+                const cLow = @cLow;
+
+                let chartData;
+                let chartColors;
+
+                if (total === 0) {
+                    chartData = [1];
+                    chartColors = ['#e8ebf7'];
+                } else {
+                    chartData = [cCrit, cHigh, cMed, cLow];
+                    chartColors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+                }
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: chartColors,
+                            borderWidth: 0,
+                            hoverOffset: total > 0 ? 4 : 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '76%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                enabled: total > 0,
+                                callbacks: {
+                                    label: function (context) {
+                                        const labels = ['Critical', 'High', 'Medium', 'Low'];
+                                        return ' ' + labels[context.dataIndex] + ': ' + context.raw;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

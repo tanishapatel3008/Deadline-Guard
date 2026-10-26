@@ -1,0 +1,36 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Something Went Wrong";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6 text-center">
+            <div class="card p-5 shadow-sm border">
+                <div class="text-danger mb-3 fs-1">
+                    <i class="bi bi-exclamation-octagon"></i>
+                </div>
+                <h3 class="fw-bold mb-2">An Unexpected Error Occurred</h3>
+                <p class="text-muted small mb-4">
+                    Our monitoring system has logged this incident. Your data integrity and deadlines remain safe.
+                </p>
+
+                @if (Model?.ShowRequestId == true)
+                {
+                    <div class="p-2 bg-light rounded text-muted small mb-4 font-monospace">
+                        Incident ID: @Model.RequestId
+                    </div>
+                }
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="@Url.Action("Index", "Dashboard")" class="btn btn-indigo btn-sm">
+                        <i class="bi bi-house me-1"></i> Return to Dashboard
+                    </a>
+                    <a href="@Url.Action("Index", "Deadlines")" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-list-task me-1"></i> View Deadlines
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

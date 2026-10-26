@@ -1,0 +1,179 @@
+@model DeadlineGuard.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account — DeadlineGuard";
+}
+
+<div class="dg-auth-container">
+    <!-- Left Column: Editorial Brand Showcase & Feature List -->
+    <div class="dg-auth-showcase">
+        <div class="dg-auth-showcase-inner">
+            <!-- Brand Logo Header -->
+            <a href="@Url.Action("Login", "Account")" class="dg-auth-logo-link">
+                <img src="~/images/logo-brand.svg" alt="DeadlineGuard" class="dg-auth-logo-img" />
+                <div class="dg-auth-logo-text">
+                    <span class="dg-auth-logo-title">Deadline<span class="text-purple">Guard</span></span>
+                    <span class="dg-auth-logo-subtitle">Automatic Deadline &amp; Penalty Tracker</span>
+                </div>
+            </a>
+
+            <!-- Editorial Headline -->
+            <div class="dg-auth-heading-group">
+                <span class="dg-auth-eyebrow">STAY AHEAD. ALWAYS.</span>
+                <h1 class="dg-auth-main-headline">
+                    Your deadlines.<br />
+                    <span class="dg-auth-italic-accent">Our priority.</span>
+                </h1>
+                <p class="dg-auth-lead">
+                    Track your deadlines, avoid penalties, and stay organized — all in one place.
+                </p>
+            </div>
+
+            <!-- 5 Feature Items from Reference Image -->
+            <div class="dg-auth-features">
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-calendar-plus"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Add Deadlines</h6>
+                        <span class="dg-feature-desc">Include documents &amp; details</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Smart Reminders</h6>
+                        <span class="dg-feature-desc">Get notified, always</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Priority Ranking</h6>
+                        <span class="dg-feature-desc">Based on urgency, consequence &amp; effort</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Detect Conflicts</h6>
+                        <span class="dg-feature-desc">Avoid overlapping deadlines</span>
+                    </div>
+                </div>
+
+                <div class="dg-feature-item">
+                    <div class="dg-feature-icon-badge">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="dg-feature-text">
+                        <h6 class="dg-feature-title">Daily Dashboard</h6>
+                        <span class="dg-feature-desc">Your action plan, every day</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Handwritten Tagline with double swoosh underline -->
+            <div class="dg-auth-tagline-wrapper">
+                <div class="dg-auth-tagline">
+                    Less stress.<br />More progress.
+                </div>
+                <svg class="dg-auth-tagline-swoosh" width="135" height="18" viewBox="0 0 135 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6C42 2 95 1 133 4" stroke="#6440ea" stroke-width="2.2" stroke-linecap="round"/>
+                    <path d="M14 13C52 10 98 9 124 12" stroke="#6440ea" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Frosted Glass Authentication Card -->
+    <div class="dg-auth-card-pane">
+        <div class="dg-auth-glass-card">
+            <!-- Mobile Brand Header -->
+            <div class="dg-auth-mobile-logo d-lg-none mb-3 text-center">
+                <a href="@Url.Action("Index", "Home")" class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                    <img src="~/images/logo-mark.png" alt="DeadlineGuard" style="height: 38px; width: auto;" />
+                    <span class="fs-5 fw-bold text-dark">Deadline<span class="text-purple">Guard</span></span>
+                </a>
+            </div>
+
+            <div class="dg-card-header">
+                <div class="dg-card-eyebrow-line">
+                    <span class="dg-card-eyebrow">GET STARTED</span>
+                </div>
+                <h2 class="dg-card-title">Create your account</h2>
+                <p class="dg-card-subtitle">Start managing your deadlines with confidence.</p>
+            </div>
+
+            <form asp-action="Register" method="post" class="dg-auth-form" id="registerForm">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 px-3 small rounded-3 mb-3"></div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-person dg-input-icon"></i>
+                        <input asp-for="FullName" class="dg-form-input" placeholder="Full name" autocomplete="name" />
+                    </div>
+                    <span asp-validation-for="FullName" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-envelope dg-input-icon"></i>
+                        <input asp-for="Email" class="dg-form-input" placeholder="Email address" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-lock dg-input-icon"></i>
+                        <input asp-for="Password" type="password" id="registerPassword" class="dg-form-input dg-input-with-toggle" placeholder="Password (min. 6 characters)" autocomplete="new-password" />
+                        <button type="button" class="dg-password-toggle" data-target="registerPassword" title="Toggle password visibility" tabindex="-1">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-form-group mb-3">
+                    <div class="dg-input-wrapper">
+                        <i class="bi bi-check2-circle dg-input-icon"></i>
+                        <input asp-for="ConfirmPassword" type="password" id="registerConfirmPassword" class="dg-form-input dg-input-with-toggle" placeholder="Confirm password" autocomplete="new-password" />
+                        <button type="button" class="dg-password-toggle" data-target="registerConfirmPassword" title="Toggle password visibility" tabindex="-1">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="dg-validation-msg"></span>
+                </div>
+
+                <div class="dg-terms-notice mb-3">
+                    By registering, you agree to prioritize obligations safely and adhere to DeadlineGuard terms of service.
+                </div>
+
+                <button type="submit" class="dg-btn-primary w-100 btn-auth-submit">
+                    <span class="spinner-border spinner-border-sm btn-spinner d-none me-2" role="status" aria-hidden="true"></span>
+                    <span class="btn-text">Create Account <i class="bi bi-arrow-right ms-1"></i></span>
+                </button>
+            </form>
+
+            <div class="dg-card-footer text-center">
+                <span class="text-muted">Already have an account?</span>
+                <a href="@Url.Action("Login", "Account")" class="dg-footer-link">Sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

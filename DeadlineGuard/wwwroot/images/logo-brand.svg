@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 56" fill="none">
+    <!-- Left speed lines in violet -->
+    <path d="M4 14H18" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+    <path d="M10 24H18" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+    <path d="M14 34H18" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Outer D border in dark navy -->
+    <path d="M22 8H36C49 8 58 17 58 28C58 39 49 48 36 48H22" stroke="#16162a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Left vertical bar with purple pill accent -->
+    <path d="M22 8V20" stroke="#6440ea" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M22 28V48" stroke="#16162a" stroke-width="4.5" stroke-linecap="round"/>
+    
+    <!-- Clock hands at center -->
+    <circle cx="37" cy="28" r="2.5" fill="#16162a"/>
+    <path d="M37 28V16" stroke="#16162a" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M37 28L45 20" stroke="#16162a" stroke-width="3.2" stroke-linecap="round"/>
+</svg>

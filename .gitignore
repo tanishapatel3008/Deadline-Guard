@@ -1,0 +1,30 @@
+# Build output
+**/bin/
+**/obj/
+.vs/
+
+# User-specific files
+*.user
+*.suo
+.vscode/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings.Local.json
+appsettings.*.Local.json
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Configuration files that may contain secrets
+**/appsettings.json
+**/appsettings.*.json
+!**/appsettings.example.json
